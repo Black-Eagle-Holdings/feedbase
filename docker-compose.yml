@@ -1,11 +1,10 @@
 services:
-  # Production service - for people who want to just deploy
   app:
     build:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "3002:3000"
+      - "${APP_PORT:-3002}:3000"
     environment:
       - NODE_ENV=production
       - PORT=3000
@@ -18,14 +17,13 @@ services:
       retries: 3
       start_period: 40s
 
-  # Development service - API server only
   api:
     build:
       context: .
       dockerfile: Dockerfile.dev
     command: bun run dev:server
     ports:
-      - "3000:3000"
+      - "${API_PORT:-3000}:3000"
     volumes:
       - .:/app
       - /app/node_modules
@@ -35,14 +33,13 @@ services:
       - HOST=0.0.0.0
     restart: unless-stopped
 
-  # Development service - Vite dev server
   web:
     build:
       context: .
       dockerfile: Dockerfile.dev
     command: bun run dev:vite
     ports:
-      - "5173:5173"
+      - "${WEB_PORT:-5173}:5173"
     volumes:
       - .:/app
       - /app/node_modules
@@ -51,14 +48,13 @@ services:
       - PORT=5173
     restart: unless-stopped
 
-  # Development service - both API and Web together
   dev:
     build:
       context: .
       dockerfile: Dockerfile.dev
     ports:
-      - "3000:3000"
-      - "5173:5173"
+      - "${DEV_API_PORT:-3003}:3000"
+      - "${DEV_WEB_PORT:-5174}:5173"
     volumes:
       - .:/app
       - /app/node_modules
